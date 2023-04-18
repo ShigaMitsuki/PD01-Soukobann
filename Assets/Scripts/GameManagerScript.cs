@@ -29,8 +29,9 @@ public class GameManagerScript : MonoBehaviour
 
     }
     //プレイヤーインデックス取得メソッド
-    int GetPlayerIndex()
+    int GetPlayerIndexX()
     {
+
         for (int j = 0; j < Map.GetLength(0); j++)
         {
             for (int i = 0; i < Map.Length / Map.GetLength(0); i++)
@@ -42,6 +43,25 @@ public class GameManagerScript : MonoBehaviour
                 }
             }
         }
+
+        return -1;
+    }
+
+    int GetPlayerIndexY()
+    {
+
+        for (int j = 0; j < Map.GetLength(0); j++)
+        {
+            for (int i = 0; i < Map.Length / Map.GetLength(0); i++)
+            {
+
+                if (Map[j, i] == 1)
+                {
+                    return j;
+                }
+            }
+        }
+
         return -1;
     }
 
@@ -50,12 +70,12 @@ public class GameManagerScript : MonoBehaviour
     {
 
         //移動不可の部分
-        if (MoveToX < 0 || MoveToX >= Map.Length)
+        if (MoveToX < 0 || MoveToX >= Map.Length / Map.GetLength(0))
         {
             return false;
         }
 
-        if (MoveToY < 0 || MoveToY >= Map.Rank)
+        if (MoveToY < 0 || MoveToY >= Map.GetLength(0))
         {
             return false;
         }
@@ -71,7 +91,7 @@ public class GameManagerScript : MonoBehaviour
             //プレイヤーの移動先から、さらに先へ箱を移動させる
             //箱の移送処理、MoveNumberメソッド内でMoveNumberメソッドを呼び
             //処理が再起している、移動可不可をboolで記録
-            bool Success = MoveNumber(2, MoveToX, MoveToY, MoveToX + VelocityX, MoveToY + VelocityY);
+            bool Success = MoveNumber(2, MoveToX,  MoveToY, MoveToX + VelocityX, MoveToY + VelocityY);
 
             //移動失敗の場合、プレイヤーも移動しない
             if (!Success) { return false; }
@@ -87,10 +107,12 @@ public class GameManagerScript : MonoBehaviour
     void Start()
     {
         //配列の実態の生成、初期化
-        Map = new int[,] { 
+        Map = new int[,] {
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 
             { 0, 0, 0, 1, 0, 2, 0, 0, 0 }, 
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0 }};
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 
         PrintArray();
     }
@@ -100,10 +122,11 @@ public class GameManagerScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            int PlayerIndex = GetPlayerIndex();
+            int PlayerIndexX = GetPlayerIndexX();
+            int PlayerIndexY = GetPlayerIndexY();
             //Debug.Log();
 
-            //MoveNumber(1, PlayerIndex, PlayerIndex + 1);
+            MoveNumber(1, PlayerIndexX,PlayerIndexY, PlayerIndexX + 1, PlayerIndexY );
 
             PrintArray();
 
@@ -111,9 +134,32 @@ public class GameManagerScript : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            int PlayerIndex = GetPlayerIndex();
+            int PlayerIndexX = GetPlayerIndexX();
+            int PlayerIndexY = GetPlayerIndexY();
 
-            //MoveNumber(1, PlayerIndex, PlayerIndex - 1);
+            MoveNumber(1, PlayerIndexX, PlayerIndexY, PlayerIndexX - 1,PlayerIndexY );
+
+            PrintArray();
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            int PlayerIndexX = GetPlayerIndexX();
+            int PlayerIndexY = GetPlayerIndexY();
+
+            MoveNumber(1, PlayerIndexX, PlayerIndexY, PlayerIndexX ,PlayerIndexY- 1 );
+
+            PrintArray();
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            int PlayerIndexX = GetPlayerIndexX();
+            int PlayerIndexY = GetPlayerIndexY();
+
+            MoveNumber(1, PlayerIndexX, PlayerIndexY, PlayerIndexX,PlayerIndexY + 1);
 
             PrintArray();
 

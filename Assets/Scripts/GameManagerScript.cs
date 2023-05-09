@@ -13,9 +13,13 @@ public class GameManagerScript : MonoBehaviour
 
     public GameObject PlayerPrefab;
     public GameObject BoxPrefab;
+    public GameObject ClearPointPrefab;
+
+    public GameObject ClearText;
 
     //出力メソッド
-    void PrintArray() {
+    void PrintArray()
+    {
 
         string DebugText = "";
         DebugText += "\n";
@@ -54,7 +58,7 @@ public class GameManagerScript : MonoBehaviour
 
 
     //NumberをMoveFromからMoveToに動かすメソッド
-    bool MoveNumber(string tag, Vector2Int MoveFrom,Vector2Int MoveTo)
+    bool MoveNumber(string tag, Vector2Int MoveFrom, Vector2Int MoveTo)
     {
 
         //移動不可の部分
@@ -85,7 +89,7 @@ public class GameManagerScript : MonoBehaviour
 
         //}
 
-        if(Field[MoveTo.y, MoveTo.x] != null && Field[MoveTo.y, MoveTo.x].tag == "Box")
+        if (Field[MoveTo.y, MoveTo.x] != null && Field[MoveTo.y, MoveTo.x].tag == "Box")
         {
             Vector2Int Velocity = MoveTo - MoveFrom;
 
@@ -110,11 +114,13 @@ public class GameManagerScript : MonoBehaviour
     void Start()
     {
 
-        
+
         //配列の実態の生成、初期化
         Map = new int[,] {
             { 0, 0, 0, 0, 0, },
-            { 0, 0, 2, 1, 0,},
+            { 0, 3, 1, 3, 0,},
+            { 0, 0, 2, 0, 0,},
+            { 0, 2, 3, 2, 0,},
             { 0, 0, 0, 0, 0,} };
 
         //PrintArray();
@@ -129,11 +135,11 @@ public class GameManagerScript : MonoBehaviour
         {
             for (int x = 0; x < Map.GetLength(1); x++)
             {
-                if (Map[y,x] == 1)
+                if (Map[y, x] == 1)
                 {
-                    Field[y,x] = Instantiate(
+                    Field[y, x] = Instantiate(
                         PlayerPrefab,
-                        new Vector3(x , Map.GetLength(0) - y, 0),
+                        new Vector3(x, Map.GetLength(0) - y, 0),
                         Quaternion.identity
                         );
                 }
@@ -143,6 +149,15 @@ public class GameManagerScript : MonoBehaviour
                     Field[y, x] = Instantiate(
                         BoxPrefab,
                         new Vector3(x, Map.GetLength(0) - y, 0),
+                        Quaternion.identity
+                        );
+                }
+
+                if (Map[y, x] == 3)
+                {
+                    Field[y, x] = Instantiate(
+                        ClearPointPrefab,
+                        new Vector3(x, Map.GetLength(0) - y, 0.01f),
                         Quaternion.identity
                         );
                 }
@@ -157,7 +172,7 @@ public class GameManagerScript : MonoBehaviour
         {
             Vector2Int PlayerIndex = GetPlayerIndex();
 
-            MoveNumber("Player", PlayerIndex,new Vector2Int(PlayerIndex.x + 1 , PlayerIndex.y));
+            MoveNumber("Player", PlayerIndex, new Vector2Int(PlayerIndex.x + 1, PlayerIndex.y));
 
             PrintArray();
 
@@ -166,7 +181,7 @@ public class GameManagerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             Vector2Int PlayerIndex = GetPlayerIndex();
-            
+
             MoveNumber("Player", PlayerIndex, new Vector2Int(PlayerIndex.x - 1, PlayerIndex.y));
 
             PrintArray();
@@ -176,7 +191,7 @@ public class GameManagerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Vector2Int PlayerIndex = GetPlayerIndex();
-        
+
             MoveNumber("Player", PlayerIndex, new Vector2Int(PlayerIndex.x, PlayerIndex.y - 1));
 
             PrintArray();
@@ -192,5 +207,38 @@ public class GameManagerScript : MonoBehaviour
             PrintArray();
 
         }
+
+        if (IsCleard())
+        {
+            ClearText.SetActive(true);
+        }
+    }
+
+    bool IsCleard()
+    {
+        List<Vector2Int> goals = new List<Vector2Int>();
+
+        for (int y = 0; y < Map.GetLength(0); y++)
+        {
+            for (int x = 0; x < Map.GetLength(1); x++)
+            {
+                if (Map[y, x] == 3)
+                {
+                    goals.Add(new Vector2Int(x, y));
+                }
+            }
+        }
+
+        for (int i = 0; i < goals.Count; i++)
+        {
+            GameObject f = Field[goals[i].y, goals[i].x];
+            if (f == null || f.tag != "Box")
+            {
+                return false;
+            }
+        }
+        Debug.Log("Clear");
+        return true;
+       
     }
 }
